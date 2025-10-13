@@ -1,0 +1,146 @@
+<!-- src/app/components/user-component/user-component.html -->
+<div class="container">
+  <div class="header">
+    <h1>User Management System</h1>
+    @if (!showForm()) {
+      <button class="btn btn-primary" (click)="showAddForm()">
+        + Add New User
+      </button>
+    }
+  </div>
+
+  <!-- Loading Spinner -->
+  @if (isLoading()) {
+    <div class="loading-spinner">
+      <div class="spinner"></div>
+      <p>Loading...</p>
+    </div>
+  }
+
+  <!-- Add/Edit User Form -->
+  @if (showForm()) {
+    <div class="form-container">
+      <h2>{{ isEditMode() ? 'Edit User' : 'Add New User' }}</h2>
+
+      <form (ngSubmit)="isEditMode() ? updateUser() : saveUser()" #userForm="ngForm">
+        
+        <!-- Username -->
+        <div class="form-group">
+          <label for="userName">Username:</label>
+
+          @if (isEditMode()) {
+            <input
+              type="text"
+              id="userName"
+              [(ngModel)]="selectedUser()!.userName"
+              name="userName"
+              class="form-control"
+              placeholder="Enter username"
+              required>
+          } @else {
+            <input
+              type="text"
+              id="userName"
+              [(ngModel)]="newUser.userName"
+              name="userName"
+              class="form-control"
+              placeholder="Enter username"
+              required>
+          }
+        </div>
+
+        <!-- Email -->
+        <div class="form-group">
+          <label for="email">Email:</label>
+          @if (isEditMode()) {
+            <input
+              type="email"
+              id="email"
+              [(ngModel)]="selectedUser()!.email"
+              name="email"
+              class="form-control"
+              placeholder="Enter email"
+              required>
+          } @else {
+            <input
+              type="email"
+              id="email"
+              [(ngModel)]="newUser.email"
+              name="email"
+              class="form-control"
+              placeholder="Enter email"
+              required>
+          }
+        </div>
+
+        <!-- Password -->
+        <div class="form-group">
+          <label for="password">Password:</label>
+          @if (isEditMode()) {
+            <input
+              type="password"
+              id="password"
+              [(ngModel)]="selectedUser()!.password"
+              name="password"
+              class="form-control"
+              placeholder="Enter password"
+              required>
+          } @else {
+            <input
+              type="password"
+              id="password"
+              [(ngModel)]="newUser.password"
+              name="password"
+              class="form-control"
+              placeholder="Enter password"
+              required>
+          }
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="btn btn-success" [disabled]="isLoading()">
+            {{ isEditMode() ? 'Update User' : 'Save User' }}
+          </button>
+          <button type="button" class="btn btn-secondary" (click)="cancelForm()" [disabled]="isLoading()">
+            Cancel
+          </button>
+        </div>
+      </form>
+    </div>
+  }
+
+  <!-- Users Table -->
+  <div class="table-container">
+    <h2>Users List</h2>
+    
+    @if (users().length === 0 && !isLoading()) {
+      <div class="no-data">No users found. Please add a new user.</div>
+    }
+
+    @if (users().length > 0) {
+      <table class="users-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Username</th>
+            <th>Email</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (user of users(); track user.id) {
+            <tr>
+              <td>{{ user.id }}</td>
+              <td>{{ user.userName }}</td>
+              <td>{{ user.email }}</td>
+              <td class="actions">
+                <button class="btn btn-edit" (click)="editUser(user)" [disabled]="isLoading()">Edit</button>
+                <button class="btn btn-delete" (click)="deleteUser(user.id)" [disabled]="isLoading()">Delete</button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    }
+  </div>
+</div>
