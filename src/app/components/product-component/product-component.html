@@ -1,0 +1,126 @@
+<!-- src/app/components/product-component/product-component.html -->
+<div class="container">
+  <div class="header">
+    <h1>Product Management System</h1>
+    @if (!showForm()) {
+      <button class="btn btn-primary" (click)="showAddForm()">
+        + Add New Product
+      </button>
+    }
+  </div>
+
+  <!-- Loading Spinner -->
+  @if (isLoading()) {
+    <div class="loading-spinner">
+      <div class="spinner"></div>
+      <p>Loading...</p>
+    </div>
+  }
+
+  <!-- Add/Edit Product Form -->
+  @if (showForm()) {
+    <div class="form-container">
+      <h2>{{ isEditMode() ? 'Edit Product' : 'Add New Product' }}</h2>
+
+      <form (ngSubmit)="isEditMode() ? updateProduct() : saveProduct()" #productForm="ngForm">
+        
+        <!-- Product Name -->
+        <div class="form-group">
+          <label for="productName">Product Name:</label>
+
+          @if (isEditMode()) {
+            <input
+              type="text"
+              id="productName"
+              [(ngModel)]="selectedProduct()!.productName"
+              name="productName"
+              class="form-control"
+              placeholder="Enter product name"
+              required>
+          } @else {
+            <input
+              type="text"
+              id="productName"
+              [(ngModel)]="newProduct.productName"
+              name="productName"
+              class="form-control"
+              placeholder="Enter product name"
+              required>
+          }
+        </div>
+
+        <!-- Price -->
+        <div class="form-group">
+          <label for="price">Price:</label>
+          @if (isEditMode()) {
+            <input
+              type="number"
+              id="price"
+              [(ngModel)]="selectedProduct()!.price"
+              name="price"
+              class="form-control"
+              placeholder="Enter price"
+              min="0"
+              step="0.01"
+              required>
+          } @else {
+            <input
+              type="number"
+              id="price"
+              [(ngModel)]="newProduct.price"
+              name="price"
+              class="form-control"
+              placeholder="Enter price"
+              min="0"
+              step="0.01"
+              required>
+          }
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="btn btn-success" [disabled]="isLoading()">
+            {{ isEditMode() ? 'Update Product' : 'Save Product' }}
+          </button>
+          <button type="button" class="btn btn-secondary" (click)="cancelForm()" [disabled]="isLoading()">
+            Cancel
+          </button>
+        </div>
+      </form>
+    </div>
+  }
+
+  <!-- Products Table -->
+  <div class="table-container">
+    <h2>Products List</h2>
+    
+    @if (products().length === 0 && !isLoading()) {
+      <div class="no-data">No products found. Please add a new product.</div>
+    }
+
+    @if (products().length > 0) {
+      <table class="products-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Product Name</th>
+            <th>Price</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (product of products(); track $index) {
+            <tr>
+              <td>{{ product.id }}</td>
+              <td>{{ product.productName }}</td>
+              <td>{{ product.price | currency:'USD':'symbol':'1.2-2' }}</td>
+              <td class="actions">
+                <button class="btn btn-edit" (click)="editProduct(product)" [disabled]="isLoading()">Edit</button>
+                <button class="btn btn-delete" (click)="deleteProduct(product.id)" [disabled]="isLoading()">Delete</button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    }
+  </div>
+</div>

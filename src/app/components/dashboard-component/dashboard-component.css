@@ -1,0 +1,5 @@
+.dashboard { padding: 20px; }
+nav ul { list-style: none; padding: 0; display: flex; gap: 20px; }
+nav ul li { margin: 0; }
+a { text-decoration: none; color: #007bff; font-weight: 500; }
+.material-icons { vertical-align: middle; margin-right: 5px; }
