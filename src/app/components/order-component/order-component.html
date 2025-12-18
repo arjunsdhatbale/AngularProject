@@ -1,0 +1,131 @@
+```html
+<p>order-component works!</p>
+<!-- src/app/components/order-component/order-component.html -->
+<div class="container">
+  <div class="header">
+    <h1>Order Management System</h1>
+    @if (!showForm()) {
+      <button class="btn btn-primary" (click)="showAddForm()">
+        + Add New Order
+      </button>
+    }
+  </div>
+
+  <!-- Loading Spinner -->
+  @if (isLoading()) {
+    <div class="loading-spinner">
+      <div class="spinner"></div>
+      <p>Loading...</p>
+    </div>
+  }
+
+  <!-- Add/Edit order Form -->
+  @if (showForm()) {
+    <div class="form-container">
+      <h2>{{ isEditMode() ? 'Edit Order' : 'Add New Order' }}</h2>
+
+      <form (ngSubmit)="isEditMode() ? updateOrder() : saveOrder()" #orderForm="ngForm">
+        
+        <!-- order Name -->
+        <div class="form-group">
+          <label for="orderName">Order Name:</label>
+
+          @if (isEditMode()) {
+            <input
+              type="text"
+              id="orderName"
+              [(ngModel)]="selectedOrder()!.orderName"
+              name="orderName"
+              class="form-control"
+              placeholder="Enter order name"
+              required>
+          } @else {
+            <input
+              type="text"
+              id="orderName"
+              [(ngModel)]="newOrder.orderName"
+              name="orderName"
+              class="form-control"
+              placeholder="Enter order name"
+              required>
+          }
+        </div>
+
+        <!-- Price -->
+        <div class="form-group">
+          <label for="price">Price:</label>
+          @if (isEditMode()) {
+            <input
+              type="number"
+              id="price"
+              [(ngModel)]="selectedOrder()!.price"
+              name="price"
+              class="form-control"
+              placeholder="Enter price"
+              min="0"
+              step="0.01"
+              required>
+          } @else {
+            <input
+              type="number"
+              id="price"
+              [(ngModel)]="newOrder.price"
+              name="price"
+              class="form-control"
+              placeholder="Enter price"
+              min="0"
+              step="0.01"
+              required>
+          }
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="btn btn-success" [disabled]="isLoading()">
+            {{ isEditMode() ? 'Update Order' : 'Save Order' }}
+          </button>
+          <button type="button" class="btn btn-secondary" (click)="cancelForm()" [disabled]="isLoading()">
+            Cancel
+          </button>
+        </div>
+      </form>
+    </div>
+  }
+
+  <!-- orders Table -->
+  <div class="table-container">
+    <h2>Orders List</h2>
+    
+    @if (orders().length === 0 && !isLoading()) {
+      <div class="no-data">No orders found. Please add a new order.</div>
+    }
+
+    @if (orders().length > 0) {
+      <table class="orders-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Order Name</th>
+            <th>Price</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (order of orders(); track $index) {
+            <tr>
+              <td>{{ order.id }}</td>
+              <td>{{ order.orderName }}</td>
+              <td>{{ order.price | currency:'USD':'symbol':'1.2-2' }}</td>
+              <td class="actions">
+                <button class="btn btn-edit" (click)="editOrder(order)" [disabled]="isLoading()">Edit</button>
+                <button class="btn btn-delete" (click)="deleteOrder(order.id)" [disabled]="isLoading()">Delete</button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    }
+  </div>
+</div>
+
+now you have to fix this for order-component.html 
+```
