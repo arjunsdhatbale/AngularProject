@@ -13,5 +13,10 @@ export const appConfig: ApplicationConfig = {
     provideRouter(routes),
     provideClientHydration(withEventReplay()),
     provideHttpClient(withFetch()),
+    provideAnimations(),
   ]
 };
+function provideAnimations(): import("@angular/core").Provider | import("@angular/core").EnvironmentProviders {
+  throw new Error('Function not implemented.');
+}
+

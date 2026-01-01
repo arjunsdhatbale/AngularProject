@@ -1,14 +1,162 @@
- 
-<div class="dashboard">
-  <h1>Dashboard</h1>
-  <nav>
-    <ul>
-      <li *ngFor="let item of menuItems">
-        <a [routerLink]="item.route">
-          <span *ngIf="item.icon" class="material-icons">{{item.icon}}</span>
-          {{ item.label }}
-        </a>
-      </li>
-    </ul>
-  </nav>
+<!-- Modern Dashboard with Sidebar and Main Content Area -->
+<div class="dashboard-container">
+  <!-- Sidebar Navigation -->
+  <aside class="sidebar" [class.collapsed]="isSidebarCollapsed">
+    <div class="sidebar-header">
+      <div class="logo">
+        <span class="material-icons">dashboard</span>
+        <h2 *ngIf="!isSidebarCollapsed">My App</h2>
+      </div>
+      <button class="toggle-btn" (click)="toggleSidebar()" aria-label="Toggle sidebar">
+        <span class="material-icons">{{ isSidebarCollapsed ? 'menu_open' : 'menu' }}</span>
+      </button>
+    </div>
+
+    <nav class="sidebar-nav">
+      <ul class="nav-list">
+        <li *ngFor="let item of menuItems" 
+            class="nav-item"
+            [class.active]="isActiveRoute(item.route)"
+            [matTooltip]="isSidebarCollapsed ? item.label : ''"
+            matTooltipPosition="right">
+          <a [routerLink]="item.route" class="nav-link">
+            <span class="material-icons">{{ item.icon }}</span>
+            <span class="nav-label" *ngIf="!isSidebarCollapsed">{{ item.label }}</span>
+            <span class="badge" *ngIf="item.badge && !isSidebarCollapsed">{{ item.badge }}</span>
+          </a>
+        </li>
+      </ul>
+    </nav>
+
+    <div class="sidebar-footer" *ngIf="!isSidebarCollapsed">
+      <div class="user-info">
+        <div class="user-avatar">
+          <span class="material-icons">account_circle</span>
+        </div>
+        <div class="user-details">
+          <p class="user-name">{{ userName }}</p>
+          <p class="user-email">{{ userEmail }}</p>
+        </div>
+      </div>
+      <button class="logout-btn" (click)="logout()" aria-label="Logout">
+        <span class="material-icons">logout</span>
+      </button>
+    </div>
+  </aside>
+
+  <!-- Main Content Area -->
+  <main class="main-content">
+    <!-- Top Header Bar -->
+    <header class="top-header">
+      <div class="header-left">
+        <h1 class="page-title">{{ pageTitle }}</h1>
+        <nav class="breadcrumb" *ngIf="breadcrumbs.length > 0">
+          <a *ngFor="let crumb of breadcrumbs; let last = last" 
+             [routerLink]="crumb.route"
+             [class.active]="last">
+            {{ crumb.label }}
+            <span class="material-icons" *ngIf="!last">chevron_right</span>
+          </a>
+        </nav>
+      </div>
+      
+      <div class="header-right">
+        <div class="search-box">
+          <span class="material-icons">search</span>
+          <input type="text" 
+                 placeholder="Search..." 
+                 [(ngModel)]="searchQuery"
+                 (input)="onSearch()">
+        </div>
+        
+        <button class="icon-btn notification-btn" 
+                [matMenuTriggerFor]="notificationMenu"
+                aria-label="Notifications">
+          <span class="material-icons">notifications</span>
+          <span class="badge-dot" *ngIf="hasUnreadNotifications"></span>
+        </button>
+
+        <button class="icon-btn settings-btn" 
+                [matMenuTriggerFor]="settingsMenu"
+                aria-label="Settings">
+          <span class="material-icons">settings</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Dashboard Content -->
+    <div class="content-area">
+      <!-- Quick Stats Cards -->
+      <section class="stats-section" *ngIf="showStats">
+        <div class="stat-card" *ngFor="let stat of stats">
+          <div class="stat-icon" [style.background]="stat.color">
+            <span class="material-icons">{{ stat.icon }}</span>
+          </div>
+          <div class="stat-content">
+            <p class="stat-label">{{ stat.label }}</p>
+            <h3 class="stat-value">{{ stat.value }}</h3>
+            <p class="stat-change" [class.positive]="stat.change > 0" [class.negative]="stat.change < 0">
+              <span class="material-icons">{{ stat.change > 0 ? 'trending_up' : 'trending_down' }}</span>
+              {{ stat.change }}% from last month
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Router Outlet for Child Components -->
+      <div class="router-content">
+        <router-outlet></router-outlet>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- Notification Menu -->
+<mat-menu #notificationMenu="matMenu" class="notification-menu">
+  <div class="menu-header">
+    <h3>Notifications</h3>
+    <button mat-button (click)="markAllAsRead()">Mark all as read</button>
+  </div>
+  <div class="notification-list">
+    <button mat-menu-item *ngFor="let notification of notifications" 
+            class="notification-item"
+            [class.unread]="!notification.read"
+            (click)="handleNotification(notification)">
+      <span class="material-icons">{{ notification.icon }}</span>
+      <div class="notification-content">
+        <p class="notification-title">{{ notification.title }}</p>
+        <p class="notification-time">{{ notification.time }}</p>
+      </div>
+    </button>
+  </div>
+  <div class="menu-footer">
+    <button mat-button routerLink="/notifications">View all notifications</button>
+  </div>
+</mat-menu>
+
+<!-- Settings Menu -->
+<mat-menu #settingsMenu="matMenu">
+  <button mat-menu-item routerLink="/profile">
+    <span class="material-icons">person</span>
+    <span>Profile</span>
+  </button>
+  <button mat-menu-item routerLink="/settings">
+    <span class="material-icons">settings</span>
+    <span>Settings</span>
+  </button>
+  <button mat-menu-item (click)="toggleTheme()">
+    <span class="material-icons">{{ isDarkMode ? 'light_mode' : 'dark_mode' }}</span>
+    <span>{{ isDarkMode ? 'Light Mode' : 'Dark Mode' }}</span>
+  </button>
+  <mat-divider></mat-divider>
+  <button mat-menu-item (click)="logout()">
+    <span class="material-icons">logout</span>
+    <span>Logout</span>
+  </button>
+</mat-menu>
+
+<!-- Loading Overlay -->
+<div class="loading-overlay" *ngIf="isLoading">
+  <mat-spinner></mat-spinner>
+  <p>Loading...</p>
 </div>
